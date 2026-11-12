@@ -10,9 +10,9 @@
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
-| Phạm Duy Đức | 2A202603611 | Kịch bản & tiêu chí. §1 lát cắt, phạm vi, đọc bảng tool · §2 viết 14 kịch bản rủi ro, chấm 2 kịch bản đắt nhất theo 4 câu hỏi (a)–(d), lý do loại các kịch bản suýt chọn · §6 ba tiêu chí Pass/Fail, chấm thử trên #11, #10 · chạy thử 18 ca lạ trên prototype và ghi lỗi còn lại (§6, §7)· Demo: trình bày lát cắt |
-| Lục Anh Tuấn | 2A202603634 |  Kịch bản & tiêu chí. §1 lát cắt, phạm vi, đọc bảng tool · §2 viết 14 kịch bản rủi ro, chấm 2 kịch bản đắt nhất theo 4 câu hỏi (a)–(d), lý do loại các kịch bản suýt chọn · §6 ba tiêu chí Pass/Fail, chấm thử trên #11, #10 · chạy thử 18 ca lạ trên prototype và ghi lỗi còn lại (§6, §7)· Demo: trình bày lát cắt  |
-| Phạm Thị Hồng Ngọc | 2A202603602 | Khi AI sai & dựng prototype. §3 câu AI nói nguyên văn cho #11 và #10, phương án đã loại, đường correction, phân loại lỗi, nguyên tắc HAX/PAIR, 3 lỗi sửa câu chữ không cứu được · dựng `prototype/index.html` (màn chat khách, màn dược sĩ, bộ luật `phanLoai()`)· Demo: bấm qua ca bắt buộc #11 |
+| Phạm Duy Đức | 2A202603611 | Viết §4 (mức tự chủ), §5 (ảnh đánh số, chú thích), §7. Demo phần mức tự chủ |
+| Lục Anh Tuấn | 2A202603634 |  Viết §1, §2 (kịch bản rủi ro, chọn 2 ca đắt nhất), §6 (tiêu chí Pass/Fail), chạy thử ca lạ trên prototype. Demo phần lát cắt  |
+| Phạm Thị Hồng Ngọc | 2A202603602 | Viết §3 (khi AI sai), dựng prototype. Demo ca bé 2 tuổi co giật |
 
 ## §1. Lát cắt & phạm vi
 
