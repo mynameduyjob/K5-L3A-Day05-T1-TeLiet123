@@ -149,12 +149,91 @@ Nhóm xếp theo bốn câu hỏi, kịch bản nào "có" nhiều hơn thì đ�
 ---
 
 ## §3. Khi AI sai  (chặng 3)
-Với mỗi kịch bản đắt nhất:
-- AI nói gì (nguyên văn) · người dùng thấy gì · làm gì tiếp · ai được báo, sau bao lâu.
-- Quyết định: hỏi lại / trả lời kèm giới hạn / dừng và chuyển người — chọn cách nào, đã loại cách nào, vì sao.
-- Loại lỗi (hệ thống / người dùng / ngữ cảnh) và vì sao cách nói, cách sửa đi theo loại đó.
-- 2–3 nguyên tắc HAX/PAIR, mỗi cái trỏ vào một chỗ cụ thể (câu chữ hoặc chỗ trên màn hình).
-- Lỗi nào sửa câu chữ không cứu được (nếu có), và thiết kế cứu nó thế nào.
+
+Hai kịch bản đắt nhất: **#11** (bé 2 tuổi co giật, li bì) và **#10** (bầu 3 tháng hỏi thuốc cảm).
+
+---
+
+### Kịch bản #11. Bé 2 tuổi, 39 độ, co giật, li bì, khách hỏi thuốc hạ sốt dạng nhét
+
+**1. AI nói gì · người dùng thấy gì · làm gì tiếp · ai được báo, sau bao lâu**
+
+- **AI nói (nguyên văn, tin đầu tiên, trước mọi câu hỏi):**
+  > "Bé co giật và li bì là dấu hiệu nguy hiểm, bạn đưa bé đến cơ sở cấp cứu gần nhất ngay, hoặc gọi 115. Mình không gợi ý thuốc hạ sốt trong lúc này. Mình đã báo dược sĩ ưu tiên, họ sẽ nhắn bạn ngay."
+- **Người dùng thấy:** thẻ cảnh báo đỏ ở đầu cuộc chat, nút "Gọi 115", nút "Chat ngay với dược sĩ". Không có thẻ sản phẩm, không có nút Đặt.
+- **Làm gì tiếp:** khách gọi 115 hoặc đưa bé đi. Nếu khách nhắn "cho mình mua thuốc hạ sốt đã", AI nhắc lại một câu ("Việc cần làm ngay là đưa bé đi cấp cứu") và không gợi ý thuốc.
+- **Ai được báo, sau bao lâu:** dược sĩ trực, ngay lập tức, vào **hàng ưu tiên**, kèm tóm tắt: bé 2 tuổi, sốt 39 độ từ chiều, co giật 1 lần, li bì; khách hỏi hạ sốt dạng nhét; đã khuyên đi cấp cứu. Dược sĩ vào cuộc chat để xác nhận khách đã đi, không tư vấn thuốc.
+
+**2. Quyết định: dừng và chuyển người (kèm khuyên đi khám)**
+
+- **Chọn:** dừng, không trả lời câu khách hỏi; khuyên đi khám ngay và chuyển dược sĩ ưu tiên.
+- **Loại "hỏi lại"** (bé mấy kg, co giật bao lâu): mỗi câu hỏi là một phút chậm; thông tin đã đủ để biết đây là ca cấp cứu.
+- **Loại "trả lời kèm giới hạn"** (có loại X, nhưng nếu co giật thì đi khám): có thẻ sản phẩm là có nút Đặt, khách sẽ bấm vào đúng thứ họ đã hỏi.
+- **Loại "chuyển dược sĩ vào hàng chờ thường":** "chuyển" không bằng "được xử lý"; ca cấp cứu vẫn nằm trong hàng chờ.
+
+**3. Loại lỗi: ngữ cảnh**
+
+Khách không sai, hệ thống không thiếu dữ liệu: dấu hiệu nguy hiểm nằm lẫn trong một câu mua hàng nên AI hiểu sai tình huống. Vì vậy cách nói là **nói thẳng AI đã nhận ra điều gì** ("co giật và li bì là dấu hiệu nguy hiểm") để khách hiểu vì sao AI không làm điều họ nhờ; câu ngắn, mệnh lệnh rõ, không xin lỗi dài. Cách sửa là đổi thứ tự xử lý (nhận diện dấu hiệu nguy hiểm trước khi xét yêu cầu mua).
+
+**4. Nguyên tắc HAX/PAIR**
+
+- **HAX G1–G2 (nói rõ hệ thống làm được gì):** câu "Mình không gợi ý thuốc hạ sốt trong lúc này" ở tin đầu nói rõ ranh giới, khách không chờ một câu trả lời sẽ không đến.
+- **HAX G9 (sửa/thoát hiệu quả):** nút "Gọi 115" và "Chat ngay với dược sĩ" nằm ngay cạnh thẻ cảnh báo, khách không phải gõ thêm.
+- **PAIR (lỗi và thất bại nhẹ nhàng):** khi AI từ chối đúng điều khách yêu cầu, màn hình đưa sẵn đường đi thay thế tại chỗ (hai nút trên).
+
+**5. Lỗi sửa câu chữ không cứu được: có**
+
+Nếu thẻ sản phẩm kèm nút Đặt vẫn hiện thì khách vẫn bấm, dù câu chữ đúng đến đâu. Thiết kế cứu ở ba chỗ:
+
+- **Thứ tự:** cảnh báo hiện trước mọi thứ, `khuyen_di_kham` chạy ở tin đầu tiên.
+- **Màn hình:** ca gắn cờ nguy hiểm thì `goi_y_san_pham` bị khoá trong cuộc chat đó, không hiện thẻ sản phẩm nào.
+- **Hàng chờ:** `chuyen_duoc_si` có mức ưu tiên riêng cho ca có dấu hiệu nguy hiểm.
+
+---
+
+### Kịch bản #10. Bầu 3 tháng, sổ mũi 2 ngày, hỏi thuốc không ảnh hưởng em bé
+
+**1. AI nói gì · người dùng thấy gì · làm gì tiếp · ai được báo, sau bao lâu**
+
+- **AI nói (nguyên văn):**
+  > "Mình không gợi ý thuốc cho mẹ bầu được, vì mình không có nguồn nào để kiểm tra thuốc nào an toàn cho thai kỳ, và nói 'an toàn' khi chưa chắc thì không đúng với bạn và em bé. Mình đã chuyển bạn cho dược sĩ kèm thông tin: bầu 3 tháng, sổ mũi 2 ngày, nên bạn không phải kể lại. Trong lúc chờ, bạn có thể uống đủ nước và nghỉ ngơi."
+- **Người dùng thấy:** tin nhắn trên, nút "Chat với dược sĩ", trạng thái "Đã chuyển, dược sĩ sẽ trả lời bạn". Không có thẻ sản phẩm.
+- **Làm gì tiếp:** khách chờ dược sĩ. Nếu khách hỏi "vậy loại nào cũng được à?", AI trả lời một câu: "Mình chưa thể nói loại nào, dược sĩ sẽ xem cho bạn."
+- **Ai được báo, sau bao lâu:** dược sĩ trực, ngay khi chuyển, vào **hàng thường** (không có dấu hiệu cấp cứu), kèm tóm tắt: thai 3 tháng, sổ mũi 2 ngày. Nếu khách thêm sốt cao, khó thở hoặc ra máu thì xử lý như #11.
+
+**2. Quyết định: dừng và chuyển người, nói rõ lý do**
+
+- **Chọn:** dừng, không gợi ý thuốc; chuyển dược sĩ kèm tóm tắt.
+- **Loại "hỏi lại":** hỏi thêm không làm thuốc nào hết thiếu nguồn; chỉ tốn công khách và khiến khách tưởng AI sắp gợi ý.
+- **Loại "trả lời kèm giới hạn"** (loại này thường dùng được, nhưng hỏi bác sĩ nhé): "thường dùng được" vẫn là trấn an không căn cứ; câu dặn thêm không làm lời trấn an bớt tác dụng.
+
+**3. Loại lỗi: hệ thống**
+
+Giới hạn nằm ở AI (không có tool tra thai kỳ), không phải ở khách hay tình huống. Với lỗi hệ thống, AI nói thẳng giới hạn và lý do, không đưa câu trả lời tạm. Vì vậy câu đầu nêu đúng cái thiếu ("không có nguồn nào để kiểm tra"). Khách đang muốn được trấn an nên lời từ chối đi kèm hành động tiếp theo (đã chuyển, đã tóm tắt), không để khách ở lại với một chữ "không".
+
+**4. Nguyên tắc HAX/PAIR**
+
+- **HAX G1 (nói rõ hệ thống làm được gì):** cụm "không có nguồn nào để kiểm tra thuốc nào an toàn cho thai kỳ" chỉ đúng chỗ AI không làm được, thay vì từ chối chung chung.
+- **HAX G4 (thu hẹp dịch vụ khi nghi ngờ):** gặp nhóm nguy cơ (mang thai), AI thu hẹp xuống việc làm được là chuyển người, không đoán.
+- **PAIR (mô hình tư duy/kỳ vọng):** khách dễ tin giọng chuyên nghiệp của AI; AI không dùng giọng đó cho điều chưa kiểm chứng, nên kỳ vọng của khách khớp với năng lực thật (thể hiện ở câu "nói 'an toàn' khi chưa chắc thì không đúng").
+
+**5. Lỗi sửa câu chữ không cứu được: có**
+
+Lời AI nói "chưa có căn cứ" mà thẻ sản phẩm kèm nút Đặt vẫn hiện thì màn hình nói ngược lời AI, và khách tin màn hình. Thiết kế cứu bằng:
+
+- **Luật cứng:** khách khai mang thai (hoặc cho con bú) thì `goi_y_san_pham` bị khoá, chỉ còn `chuyen_duoc_si`.
+- **Tóm tắt tự động** gửi kèm khi chuyển, để chuyển người không biến thành bắt khách kể lại.
+
+---
+
+### So sánh nhanh
+
+| | #11 | #10 |
+|---|---|---|
+| Quyết định | Dừng + khuyên đi khám + chuyển ưu tiên | Dừng + chuyển (hàng thường) |
+| Loại lỗi | Ngữ cảnh | Hệ thống |
+| Cách nói | Nói thẳng AI đã nhận ra điều gì | Nói thẳng AI thiếu gì |
+| Thứ thiết kế phải đổi | Thứ tự, màn hình, hàng chờ | Luật khoá tool, tóm tắt tự động |
 
 ## §4. Mức tự chủ  (chặng 4)
 Với mỗi tool:
