@@ -235,21 +235,192 @@ Lời AI nói "chưa có căn cứ" mà thẻ sản phẩm kèm nút Đặt vẫ
 | Cách nói | Nói thẳng AI đã nhận ra điều gì | Nói thẳng AI thiếu gì |
 | Thứ thiết kế phải đổi | Thứ tự, màn hình, hàng chờ | Luật khoá tool, tóm tắt tự động |
 
-## §4. Mức tự chủ  (chặng 4)
-Với mỗi tool:
-- Mức của nhóm (tự làm / cần người duyệt / cấm). Nếu cần người duyệt: ai duyệt · người duyệt thấy gì · quá hạn thì sao.
-- Lý do theo cost-of-error: sai thì ai chịu gì · đảo lại được không · chờ người thì mất gì.
-- Phương án đã cân nhắc và vì sao loại.
-Thêm:
-- Tool khó xếp nhất: mỗi người từng chọn gì, cái giá của mỗi phía (trỏ về kịch bản ở §2), nhóm chốt thế nào.
-- Thử mức đã đặt trên 2 kịch bản đắt nhất + 1 kịch bản bình thường: cái sai có bị chặn không? còn việc nào làm khi lẽ ra phải hỏi? người dùng bình thường có phải chờ vô ích không?
-- Luật thêm hoặc tool tách bước (nếu có), và vì sao.
-- Một mức tự chủ đã đổi lời hứa nào với người dùng.
+## §4. Mức tự chủ (chặng 4)
 
-## §5. Prototype  (chặng 5)
-- Link hoặc file · công cụ · phần nào mock · có lời gọi AI thật không.
-- 1–2 ảnh có đánh số; mỗi số: thể hiện gì · nguyên tắc HAX/PAIR nào · mức tự chủ nào.
-- Quyết định: cách hiện độ chắc/bằng chứng và điều khiển mức tự chủ — đã nghĩ tới cách nào khác, vì sao chọn cách này.
+### Bảng chốt
+
+| Tool | Mức của nhóm | Nếu cần duyệt: ai duyệt · thấy gì · quá hạn thì sao |
+|---|---|---|
+| `khuyen_di_kham` | **Tự làm** | — |
+| `chuyen_duoc_si` (thêm mức `uu_tien`) | **Tự làm** | — (khách huỷ chuyển được; ca ưu tiên chỉ dược sĩ đóng) |
+| `goi_y_san_pham` → **tách hai bước** | | |
+| · `soan_goi_y` (soạn, chưa gửi khách) | **Tự làm** | — (chỉ dược sĩ thấy) |
+| · `gui_goi_y` (gửi khách kèm nút đặt) | **Theo ba tầng** (xem dưới): tự làm / **cần dược sĩ duyệt** / **cấm** | Dược sĩ trực duyệt. Thấy: tóm tắt sàng lọc, gợi ý AI soạn, lý do. Quá hạn 10 phút: **không tự gửi**, khách nhận tin cập nhật thật |
+| `luu_ghi_chu_suc_khoe` | **Cần khách đồng ý** | Khách duyệt. Thấy: đúng dòng chữ sẽ lưu và lưu để làm gì. Không trả lời: **không lưu** |
+| `ban_thuoc_ke_don` | **Cấm** | — (không có nút mua trên màn hình; đường đi là `chuyen_duoc_si`) |
+
+**Ba tầng của `gui_goi_y`:**
+
+| Tầng | Điều kiện | Mức |
+|---|---|---|
+| A | Sản phẩm thuộc **danh mục tự gợi ý** (dược sĩ Pharmacity duyệt sẵn: sản phẩm không phải thuốc và vài sản phẩm rủi ro thấp như nước muối sinh lý, gel nhiệt miệng) **và** người dùng thuốc là người lớn đã sàng lọc đủ, không có cờ | **Tự làm**. Khách tự bấm Đặt; có nút huỷ đặt |
+| B | Thuốc không kê đơn ngoài danh mục, người lớn đã sàng lọc đủ, không có cờ | **Cần dược sĩ duyệt** |
+| C | Cuộc chat có **cờ nhóm nguy cơ / dấu hiệu nguy hiểm** (trẻ dưới 12 tuổi, mang thai, cho con bú, từ 65 tuổi, đang dùng thuốc kê đơn, bệnh mạn tính, dấu hiệu nguy hiểm, đã tự dùng thuốc nhiều ngày không đỡ) | **Cấm AI gợi ý**. Chỉ dược sĩ tự tư vấn |
+
+Cờ do hệ thống bật từ câu trả lời sàng lọc. Model không chắc (ví dụ "bé" không rõ tuổi) thì cờ **mặc định bật**. Chỉ dược sĩ tắt được cờ.
+
+### Lý do theo cái giá khi sai, từng tool
+
+**`khuyen_di_kham` — tự làm**
+- *Sai thì ai chịu gì:* báo thừa thì khách lo, tốn một chuyến đi khám hoặc vài phút đọc. Báo thiếu thì người dùng thuốc mất thời gian vàng (#11, #13).
+- *Đảo được không:* khách bỏ qua được (thu gọn thẻ). Cái sai thật sự khó đảo là **không báo**.
+- *Chờ người thì mất gì:* bắt chờ dược sĩ duyệt cảnh báo chính là để ca cấp cứu nằm trong hàng chờ, điều lát cắt cấm. Ở tool này, chờ là kiểu sai đắt nhất.
+- *Đã loại:* "cần dược sĩ duyệt" (lý do trên). "Tự làm nhưng chỉ với từ khoá rõ ràng" → không loại hẳn, mà giới hạn bằng cách khác: chỉ bật theo **danh sách dấu hiệu do dược sĩ duyệt**, nội dung thẻ là **mẫu cố định**. Mỗi lần bật được dược sĩ xem lại sau (hậu kiểm) để AI không thành "cái gì cũng bảo đi viện".
+
+**`chuyen_duoc_si` — tự làm, có hai hàng**
+- *Sai thì ai chịu gì:* chuyển thừa thì dược sĩ mất vài phút và khách chờ thêm. Không chuyển thì ca nguy cơ không có người xem (#4, #10).
+- *Đảo được không:* được. Khách bấm "Không cần dược sĩ nữa" ở ca thường. Ca ưu tiên chỉ dược sĩ đóng (khách đang hoảng có thể huỷ nhầm).
+- *Chờ người thì mất gì:* bắt duyệt việc chuyển thì người duyệt chính là dược sĩ, tức là việc chuyển đã xảy ra rồi. Mức "cần duyệt" ở đây vô nghĩa.
+- *Luật thêm:* **hàng ưu tiên** cho ca có dấu hiệu nguy hiểm, quá 2 phút không ai nhận thì báo trưởng ca. Ca nhóm nguy cơ quá 15 phút thì báo trưởng ca. Lý do: chuyển nhiều thì hàng chờ dài, và hàng ưu tiên giữ cho ca #11 không bị vùi dưới các câu hỏi giá.
+
+**`goi_y_san_pham` — tách hai bước, ba tầng** *(tool khó xếp nhất, xem mục dưới)*
+- *Sai thì ai chịu gì:* người dùng thuốc chịu hại sức khoẻ, thường không phải người đang nhắn.
+- *Đảo được không:* **không**, khi thuốc đã dùng. Trước lúc dùng thì huỷ đơn được, nhưng không ai đảm bảo khách huỷ.
+- *Chờ người thì mất gì:* khách nửa đêm bỏ đi mua đại (*"đừng bắt mình chờ"*), và dược sĩ quá tải thì làm chậm chính các ca nguy hiểm.
+- *Tách bước:* `soan_goi_y` tự làm vì chỉ dược sĩ thấy, sai thì dược sĩ sửa, không ai bị hại. `gui_goi_y` mới là bước gây hại nên mới cần chia tầng. Nhờ AI soạn sẵn, việc duyệt ở tầng B chỉ còn đọc và bấm, không phải tư vấn lại từ đầu.
+- *Quá hạn không duyệt thì không tự gửi* (fail-closed). Gửi một gợi ý chưa ai duyệt chỉ vì hết giờ là biến "cần duyệt" thành "tự làm chậm".
+
+**`luu_ghi_chu_suc_khoe` — cần khách đồng ý**
+- *Sai thì ai chịu gì:* khách chịu rủi ro lộ thông tin nhạy cảm (mang thai, trầm cảm ở #9), không lấy lại được dù đã xoá.
+- *Không lưu thì mất gì:* lần sau khách phải kể lại. Rẻ.
+- *Chờ người thì mất gì:* gần như không gì, vì việc lưu không gấp. Ca cấp cứu (#11) **không hỏi** chuyện lưu.
+- *Phân biệt:* tóm tắt gửi dược sĩ **trong ca** không phải "lưu vào hồ sơ". Nó chỉ sống trong ca đó.
+- *Đã loại:* "tự làm" (rubric riêng #7). "Cấm" bị loại vì có lợi ích thật: người dị ứng penicillin muốn được nhớ để không bị gợi ý nhầm.
+
+**`ban_thuoc_ke_don` — cấm**
+- *Sai thì ai chịu gì:* người dùng thuốc chịu (kháng sinh sai, thuốc ngủ tương tác ở #9). Pharmacity chịu pháp lý.
+- *Đảo được không:* **không**.
+- *Vì sao "cần duyệt" không đủ:* khách xác nhận không chặn được, vì khách chính là người đòi mua (#7 *"bs kê rồi"*). Dược sĩ duyệt thì việc đó không còn là AI bán qua chat nữa, mà là dược sĩ kiểm đơn trong luồng riêng của nhà thuốc, không cần tool cho AI.
+- *Trên màn hình:* không có nút mua. Đường đi là chuyển dược sĩ.
+
+### Tool khó xếp nhất: `goi_y_san_pham`
+
+Mỗi người tự xếp trước, không bàn:
+
+| Thành viên | Chọn | Lý do |
+|---|---|---|
+| [Thành viên A] | Cần dược sĩ duyệt mọi gợi ý | Thuốc đã uống thì không đảo được |
+| [Thành viên B] | Tự làm sau khi sàng lọc đủ | Khách nửa đêm cần câu trả lời ngay; dược sĩ không gánh nổi mọi câu |
+| [Thành viên C] | Cấm, AI chỉ chuyển | Track gọi đây là kênh "Hỏi dược sĩ", AI không nên tư vấn thuốc |
+
+*(Nhóm điền tên thật và lý do thật của từng người.)*
+
+**Cái giá của mỗi phía, trỏ về §2:**
+- **Tự làm hết:** #3 gợi ý viên ngậm đúng nhờ may. #10 có thẻ thuốc cho mẹ bầu. #4 gửi thuốc người lớn cho "con". Ba kịch bản không chấp nhận được.
+- **Cần duyệt hết / cấm:** #14 (người lớn khoẻ, nhiệt miệng) phải chờ dược sĩ cho một tuýp gel, khách bỏ đi mua đại. Lúc đông ca, hàng chờ dài thêm và chính ca #11 và #10 bị chậm.
+
+**Cách chốt:** không chọn một mức cho cả tool mà **tách bước** (soạn / gửi) và **chia tầng theo người dùng thuốc và loại sản phẩm**. Mức tự chủ đi theo **cái giá khi sai của từng trường hợp**, không theo tên tool. Tầng C (cấm) phủ đúng các kịch bản không chấp nhận được. Tầng A (tự làm) chỉ giữ những ca mà sai thì rẻ.
+
+### Thử mức đã đặt trên 3 kịch bản
+
+| | #11 Bé 2 tuổi co giật | #10 Mẹ bầu hỏi thuốc cảm | #14 Người lớn khoẻ, nhiệt miệng (bình thường) |
+|---|---|---|---|
+| **AI làm gì** | `khuyen_di_kham` (tự làm) + `chuyen_duoc_si(uu_tien)` (tự làm). Cờ nguy hiểm bật nên `gui_goi_y` bị chặn ở tầng C | `chuyen_duoc_si` (tự làm) + hỏi một câu dấu hiệu nặng. Cờ mang thai bật nên `gui_goi_y` tầng C. Hết ca, hỏi khách có muốn lưu "đang mang thai" không (cần đồng ý) | Hỏi đúng **một** câu khách chưa khai (mang thai / cho con bú / dị ứng). Khách bấm "Không" → `gui_goi_y` tầng A (tự làm), gel nhiệt miệng có nút Đặt và nút Huỷ |
+| **Cái sai ở §2 có bị chặn không** | **Có.** Không thẻ sản phẩm nào render được; ca không nằm hàng thường | **Có.** Không có thẻ thuốc, không có câu "an toàn cho mẹ bầu" | Không có cái sai đắt để chặn. Rủi ro còn lại (khách giấu thông tin) đã giới hạn bằng danh mục rủi ro thấp |
+| **Còn làm khi lẽ ra phải hỏi?** | Không | Không | Không gợi ý trước khi biết có mang thai hay không. Tuổi và thuốc đang dùng khách đã khai nên không hỏi lại |
+| **Khách bình thường có chờ vô ích?** | — (ca này không bình thường) | Có chờ dược sĩ, nhưng **không vô ích**: đây là nhóm nguy cơ | **Không.** Chỉ chờ một lần bấm nút, không vào hàng chờ dược sĩ |
+
+**Còn hở:** khách nói dối khi sàng lọc ("không bầu") thì tầng A vẫn gửi. Nhóm chấp nhận vì danh mục tầng A chỉ gồm sản phẩm rủi ro thấp. Đó chính là lý do danh mục phải do dược sĩ duyệt, không do AI tự mở rộng.
+
+### Một mức tự chủ đã đổi lời hứa với khách
+
+Cùng một model, đổi `goi_y_san_pham` từ "tự làm" sang "soạn sẵn, dược sĩ duyệt" (tầng B):
+- **Trước:** *"Trợ lý AI tư vấn thuốc cho bạn ngay."*
+- **Sau:** *"Trợ lý AI hỏi vài câu và soạn sẵn gợi ý; **thuốc chỉ đến tay bạn khi dược sĩ đã xác nhận**. Sản phẩm thông thường thì bạn nhận ngay."*
+
+Lời hứa mới chậm hơn vài phút ở tầng B, nhưng là lời hứa Pharmacity giữ được. Tên kênh là "Hỏi **dược sĩ**", nên khách cũng đang chờ đúng lời hứa đó.
+
+## §5. Prototype (chặng 5)
+
+### File, công cụ, phần mock
+
+- **File:** `prototype/index.html`. Mở bằng trình duyệt, không cần cài gì, không đăng nhập, không backend.
+- **Công cụ:** HTML + JavaScript một file, dựng bằng coding agent (Claude Code).
+- **Hai màn hình:** Màn 1 là chat của khách. Màn 2 là màn của dược sĩ trực nhận ca được chuyển (ý bonus của track). Cột thứ ba là bảng mức tự chủ và nhật ký tool, dành cho người chấm.
+- **Phần mock:** toàn bộ.
+  - "AI" là **bộ luật từ khoá** (hàm `phanLoai()`) chạy ngay trên trình duyệt, đọc tin khách rồi chọn hướng xử lý: cấp cứu / kê đơn / hỏi liều / nhóm nguy cơ / tồn kho / hỏi tuổi / sàng lọc.
+  - Hàng chờ, dược sĩ "Hạnh", trưởng ca "Minh", sản phẩm và giá đều là **dữ liệu dựng**.
+  - Câu AI nói là mẫu viết sẵn, khớp nguyên văn với §3.
+- **Lời gọi AI thật:** **không có** (không lấy bonus +3). Muốn lấy bonus thì thay `phanLoai()` bằng một lời gọi model cho bước phân loại và câu sàng lọc, gọi qua một proxy nhỏ, key để trong biến môi trường, **không để key trong file HTML**.
+
+### Bấm qua ca khó (demo bắt buộc: trẻ nhỏ có dấu hiệu nguy hiểm)
+
+1. Chọn **#11 Bé 2 tuổi co giật**, bấm **Gửi**.
+2. Khách thấy ngay thẻ đỏ ghim trên cùng ②, dòng "Vì sao" trích đúng lời khách ③, dòng 🔒 khoá gợi ý ④, thanh "hàng ưu tiên" ⑤. Không có thẻ sản phẩm.
+3. Bấm nút gợi ý "Bán mình thuốc hạ sốt thôi" → AI nhắc lại một câu, vẫn không gợi ý.
+4. Bấm "Không phải co giật, bé chỉ run vì lạnh" → AI **không tự gỡ** cảnh báo (correction bất đối xứng ở §3).
+5. Màn dược sĩ: ca nằm ở **hàng ưu tiên** ⑨ kèm tóm tắt. Bấm **+2 phút** mà chưa nhận ca → hiện "đã báo trưởng ca".
+6. Bấm **Nhận ca** → **Gửi tin mở đầu** → khách thấy "Dược sĩ Hạnh (người)" vào cuộc chat.
+
+Các ca khác để cho thấy đủ ba mức tự chủ:
+- **#10 Mẹ bầu:** chuyển dược sĩ, hỏi một câu dấu hiệu nặng ⑦, tóm tắt có nút Sửa ⑥, "Không cần dược sĩ nữa" ⑧. Hết ca thì hỏi đồng ý lưu ⑫.
+- **#3 Đau họng:** sàng lọc một lượt ⑦ → AI soạn gợi ý → **dược sĩ duyệt** ⑩ → khách nhận thẻ "✔ Dược sĩ đã xác nhận".
+- **#14 Nhiệt miệng:** hỏi đúng một câu → thẻ sản phẩm tầng A **tự làm** ⑪, có Đặt và Huỷ đặt ⑧.
+
+### Ảnh có đánh số
+
+| Ảnh | Trạng thái | Các số xuất hiện |
+|---|---|---|
+| `prototype/anh-1-ca11-cap-cuu.png` | #11 ngay sau tin đầu | 1, 2, 3, 5, 8, 9, 13, 14 |
+| `prototype/anh-2-ca10-me-bau.png` | #10 ngay sau tin đầu | 1, 3, 4, 6, 7, 8, 9, 13 |
+| `prototype/anh-3-ca3-duoc-si-duyet.png` | #3 sau sàng lọc, chờ dược sĩ duyệt | 3, 7, 9, 10, 13 |
+| `prototype/anh-4-ca14-tu-lam.png` | #14 thẻ sản phẩm tầng A | 3, 7, 11, 13 |
+| `prototype/anh-5-ca10-ket-thuc-hoi-luu.png` | #10 dược sĩ kết thúc ca, hỏi đồng ý lưu | 12, 14 |
+
+Trong prototype, tick **"Hiện số chú thích"** để hiện các số này trực tiếp trên màn hình, kèm bảng chú thích.
+
+| Số | Thể hiện gì | Nguyên tắc HAX/PAIR | Mức tự chủ |
+|---|---|---|---|
+| ① | Nhãn "Bạn đang chat với trợ lý AI… dược sĩ (người) xem" | **G1/G2**, Luật AI 134/2025 Điều 11 | — |
+| ② | Thẻ cấp cứu ghim trên cùng, mẫu cố định, nút Gọi 115 | **PAIR Errors & Graceful Failure** | `khuyen_di_kham` **tự làm** |
+| ③ | Dòng "Vì sao mình khuyên vậy / không gợi ý / phải chờ" trích đúng chữ khách nhắn | **G11**, **PAIR Explainability & Trust** | — |
+| ④ | Dòng 🔒 "Gợi ý sản phẩm đã khoá (cờ…). Chỉ dược sĩ mở lại được" | **G10** | `gui_goi_y` tầng C **cấm** |
+| ⑤ | Thanh hàng chờ lấy số đo thật, ghi rõ "không phải lời hứa" | **G2** | `chuyen_duoc_si` **tự làm** |
+| ⑥ | Thẻ tóm tắt gửi dược sĩ, khách xem và Sửa được | **G9** | — |
+| ⑦ | Câu hỏi một lượt bằng nút, chỉ hỏi cái còn thiếu hoặc cái đổi được hướng xử lý | **G10** | — |
+| ⑧ | Hoàn tác: Thu gọn thẻ · Không cần dược sĩ nữa · Huỷ đặt | **G8** | tự làm **có hoàn tác** |
+| ⑨ | Ca trong hàng ưu tiên + đồng hồ quá hạn (tua được) | — | luật báo trưởng ca của `chuyen_duoc_si` |
+| ⑩ | Gợi ý AI soạn sẵn kèm lý do + Duyệt & gửi / Sửa / Không gửi | G11 (lý do kèm gợi ý) | `gui_goi_y` tầng B **cần duyệt** |
+| ⑪ | Thẻ sản phẩm tầng A kèm "Gợi ý vì…", "Cách dùng: xem trên nhãn" | **G11** | `gui_goi_y` tầng A **tự làm** |
+| ⑫ | Hỏi đồng ý lưu đúng một dòng; không trả lời là không lưu | — | `luu_ghi_chu_suc_khoe` **cần khách đồng ý** |
+| ⑬ | "AI hiểu sai chỗ nào?" (khách) · "AI bỏ sót / AI sai" (dược sĩ) | **G15** | — |
+| ⑭ | Bảng mức tự chủ + nhật ký tool (dòng tô vàng là tool vừa chạy) | — | cả ba mức; `ban_thuoc_ke_don` **cấm**: không có nút mua ở bất kỳ đâu |
+
+**Đối chiếu với §4:**
+- **Tự làm có hoàn tác:** ⑧ (Thu gọn, Không cần dược sĩ nữa, Huỷ đặt).
+- **Cần duyệt có xác nhận:** ⑩ (dược sĩ bấm Duyệt) và ⑫ (khách bấm Lưu).
+- **Có đường chuyển người:** ⑤, nút "Hỏi dược sĩ trước" trên thẻ ⑪, nút "Chat ngay với dược sĩ" khi khách gắt.
+- **Việc cấm không có nút:** ④. Gõ "bán mình amoxicillin" thì không có nút mua nào hiện ra.
+
+### Quyết định: cách hiện độ chắc / bằng chứng và điều khiển mức tự chủ
+
+| Chỗ | Đã cân nhắc | Chọn | Vì sao loại các cách kia |
+|---|---|---|---|
+| **Độ chắc** | (a) Con số "AI chắc 72%" · (b) Thanh màu xanh/vàng/đỏ · (c) Hiện **căn cứ**: trích nguyên văn lời khách + luật đã áp dụng | **(c)** ③ ④ | (a) Khách đang hoảng đọc 72% thành "khá an toàn"; model cũng không tự chấm độ chắc đáng tin. (b) Màu không nói *vì sao*, khách không tự kiểm được. (c) cho khách thấy AI đọc đúng hay sai lời mình, nên tin đúng mức |
+| **Cảnh báo cấp cứu** | (a) Popup chặn màn hình · (b) Một tin nhắn đỏ trong luồng chat · (c) Thẻ **ghim trên cùng**, thu gọn được nhưng không mất | **(c)** ② ⑧ | (a) Bấm X là mất, và che luôn cuộc chat với dược sĩ. (b) Trôi lên khi khách nhắn tiếp |
+| **Việc cấm** | (a) Nút "Mua" màu xám kèm giải thích · (b) **Không có nút**, chỉ có dòng 🔒 giải thích | **(b)** ④ | (a) Nút xám vẫn gợi ý "mua được nếu…", khách đi tìm cách mở. Rubric: việc cấm không có nút làm |
+| **Sàng lọc** | (a) Form dài nhiều ô · (b) Hỏi từng câu, mỗi câu một tin · (c) **Một thẻ nút bấm, chỉ hỏi cái còn thiếu** | **(c)** ⑦ | (a) Khách nửa đêm bỏ đi. (b) Nhiều vòng chờ. (c) cho #14 chỉ còn đúng một lần bấm |
+| **Thời gian chờ** | (a) AI nói "dược sĩ trả lời trong 2 phút" · (b) **Thanh trạng thái lấy số đo hàng chờ** | **(b)** ⑤ | (a) là lời hứa không tool nào giữ (lỗi sửa câu chữ không cứu được số 3, §3) |
+| **Duyệt gợi ý (tầng B)** | (a) Dược sĩ tự tư vấn lại từ đầu · (b) **AI soạn sẵn kèm lý do, dược sĩ Duyệt / Sửa / Không gửi** | **(b)** ⑩ | (a) chậm, dồn hàng chờ, làm chậm chính các ca ưu tiên |
+
+**Cách thể hiện không có trong mẫu của giảng viên:**
+- Thẻ cấp cứu là **mẫu cố định**, AI chỉ điền phần "bạn nhắn". Màn hình ghi rõ điều này.
+- Tóm tắt gửi dược sĩ mà **khách xem và sửa được**.
+- Màn dược sĩ có **đồng hồ quá hạn tua được**, để demo luật báo trưởng ca mà không phải chờ thật.
+- **Nhật ký tool** chạy song song, để người xem thấy mỗi cú bấm ứng với tool nào ở mức nào.
+- Chế độ **"Ca lạ: tự gõ"** (xem dưới).
+
+### Khi có ca lạ
+
+Chọn **"Ca lạ: tự gõ"** rồi gõ đúng câu TA đưa. Bộ luật trong `phanLoai()` chọn hướng xử lý theo thứ tự ưu tiên: **dấu hiệu nguy hiểm → thuốc kê đơn → hỏi liều → nhóm nguy cơ → tồn kho → thiếu tuổi → sàng lọc**. Đã thử 13 kịch bản ở §2 và 5 ca lạ, tất cả ra đúng hướng nhóm thiết kế, ví dụ:
+- *"ck mình bị đau ngực trái, khó thở…"* → cấp cứu.
+- *"me minh 70t bi dau dau"* (không dấu) → nhóm nguy cơ, người cao tuổi.
+- *"con mình sốt"* → hỏi tuổi.
+- *"cho con bú được không"* → nhóm nguy cơ.
+
+**Giới hạn đã biết:** đây là luật từ khoá, nên cách viết lạ sẽ lọt. Ví dụ *"bé giựt giựt"* (sau khi bỏ dấu thành "giut", không khớp "giat") sẽ đi vào đường **hỏi tuổi** rồi chuyển dược sĩ ở hàng thường, thay vì hiện thẻ cấp cứu ngay. Đó đúng là **lỗi hệ thống** ở §3. Hai đường lui trên prototype:
+- Bé dưới 12 tuổi thì AI vẫn hỏi câu dấu hiệu nặng ⑦ ("lơ mơ / co giật"). Khách bấm là ca chuyển sang cấp cứu.
+- Dược sĩ có nút ⑬ "AI bỏ sót" để ghi ca này lại, bổ sung cách viết vào danh sách dấu hiệu. Bản thật cần model cộng với danh sách dấu hiệu do dược sĩ duyệt.
 
 ## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
 - 3 tiêu chí Pass/Fail chấm được; thiết kế của nhóm đạt tiêu chí nào trên 2 kịch bản đắt nhất; lỗi còn lại.
