@@ -8,6 +8,12 @@
 # Bài nộp LAB5 — [Track] · Nhóm [tên]
 [Danh sách thành viên và việc mỗi người làm — copy bảng từ README]
 
+| Họ và Tên | Mã Học Viên | Việc đã làm |
+|---|---|---|
+| Phạm Duy Đức | 2A202603611 |  |
+| Lục Anh Tuấn | 2A202603634 |  |
+| Phạm Thị Hồng Ngọc | 2A202603602 |  |
+
 ## §1. Lát cắt & phạm vi
 - Lát cắt (chép từ track).
 - 3 việc tính năng KHÔNG làm, mỗi việc một câu vì sao.
